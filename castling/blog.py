@@ -4,8 +4,8 @@ from flask import (
 
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from castling.auth import login_required
+from castling.db import get_db
 
 bp = Blueprint('blog', __name__)
 
@@ -18,10 +18,10 @@ def index():
             ' ORDER BY created DESC').fetchall();
     return render_template('blog/index.html', posts=posts)
 
-@bp.route('/create', methods=['GET', 'POST'])
+@bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
-    if request.method is 'POST':
+    if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
         error = None
@@ -32,7 +32,7 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute('insert into post (author_id, title, body) values ? ? ?',
+            db.execute('insert into post (author_id, title, body) values (?, ?, ?)',
                     (g.user['id'], title, body))
             db.commit()
             return redirect(url_for('blog.index'))
